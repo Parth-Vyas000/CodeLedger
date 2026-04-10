@@ -55,10 +55,10 @@ dev = [
 codeledger = "codeledger.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/codeledger/codeledger"
-Repository = "https://github.com/codeledger/codeledger"
-Documentation = "https://codeledger.github.io/codeledger"
-Issues = "https://github.com/codeledger/codeledger/issues"
+Homepage = "https://github.com/Parth-Vyas000/CodeLedger"
+Repository = "https://github.com/Parth-Vyas000/CodeLedger"
+Documentation = "https://parth-vyas000.github.io/CodeLedger"
+Issues = "https://github.com/Parth-Vyas000/CodeLedger/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codeledger"]
