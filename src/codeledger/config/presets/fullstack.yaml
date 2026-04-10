@@ -1,0 +1,80 @@
+# CodeLedger Preset: Full-Stack
+project:
+  language: python
+  type: fullstack
+  phase_style: continuous
+
+cadence:
+  n_value: 5
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 4000
+  max_output_tokens: 8000
+
+template_sections:
+  - id: status
+    name: Phase Execution Summary
+    priority: 1
+    format: table
+  - id: architecture
+    name: Code Architecture (Backend + Frontend)
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Decision Rationale
+    priority: 1
+    format: table
+  - id: logic
+    name: Component Logic
+    priority: 2
+    format: prose
+    depth: non_obvious_only
+  - id: data_flow
+    name: API ↔ Frontend Data Flow
+    priority: 1
+    format: ascii_diagram
+  - id: edge_cases
+    name: Edge Cases & Error Handling
+    priority: 2
+    format: table
+  - id: interview
+    name: Interview & Learning Notes
+    priority: 3
+    format: qa
+  - id: debt
+    name: Technical Debt
+    priority: 3
+    format: table
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "**/*.py"
+    - "**/*.{js,jsx,ts,tsx}"
+    - "*.yaml"
+    - "*.toml"
+    - "*.json"
+  exclude_patterns:
+    - "tests/**"
+    - "node_modules/**"
+    - "build/**"
+    - "dist/**"
+    - "__pycache__/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - "*.lock"
+    - ".venv/**"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: balanced
+  max_doc_tokens: 10000

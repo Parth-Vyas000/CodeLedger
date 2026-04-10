@@ -1,0 +1,48 @@
+# CodeLedger Preset: Minimal
+# Lowest token cost — architecture + decisions only
+project:
+  language: python
+  type: library
+  phase_style: continuous
+
+cadence:
+  n_value: 7
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 1500
+  max_output_tokens: 2000
+
+template_sections:
+  - id: architecture
+    name: Code Architecture
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Key Decisions
+    priority: 1
+    format: table
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "**/*.py"
+  exclude_patterns:
+    - "tests/**"
+    - "__pycache__/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - ".venv/**"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: minimal
+  max_doc_tokens: 3000

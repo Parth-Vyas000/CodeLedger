@@ -1,0 +1,62 @@
+# CodeLedger Preset: CLI Tool
+project:
+  language: python
+  type: cli
+  phase_style: continuous
+
+cadence:
+  n_value: 3
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 2000
+  max_output_tokens: 3000
+
+template_sections:
+  - id: status
+    name: Implementation Status
+    priority: 1
+    format: table
+  - id: architecture
+    name: Command Structure
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Decision Rationale
+    priority: 1
+    format: table
+  - id: logic
+    name: Command Logic & I/O
+    priority: 2
+    format: prose
+    depth: non_obvious_only
+  - id: data_flow
+    name: Data Flow
+    priority: 2
+    format: ascii_diagram
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "**/*.py"
+    - "*.yaml"
+    - "*.toml"
+  exclude_patterns:
+    - "tests/**"
+    - "__pycache__/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - ".venv/**"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: balanced
+  max_doc_tokens: 5000

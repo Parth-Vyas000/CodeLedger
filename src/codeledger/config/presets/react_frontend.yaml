@@ -1,0 +1,70 @@
+# CodeLedger Preset: React Frontend
+project:
+  language: javascript
+  type: web_app
+  phase_style: continuous
+
+cadence:
+  n_value: 5
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 3000
+  max_output_tokens: 5000
+
+template_sections:
+  - id: status
+    name: Phase Execution Summary
+    priority: 1
+    format: table
+  - id: architecture
+    name: Component Hierarchy
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Decision Rationale
+    priority: 1
+    format: table
+  - id: logic
+    name: State Management & Hooks
+    priority: 1
+    format: prose
+    depth: non_obvious_only
+  - id: data_flow
+    name: Props & Data Flow
+    priority: 2
+    format: ascii_diagram
+  - id: edge_cases
+    name: Edge Cases & Error Boundaries
+    priority: 2
+    format: table
+  - id: interview
+    name: Interview & Learning Notes
+    priority: 3
+    format: qa
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "src/**/*.{js,jsx,ts,tsx}"
+    - "*.json"
+  exclude_patterns:
+    - "node_modules/**"
+    - "build/**"
+    - "dist/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - "*.lock"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: balanced
+  max_doc_tokens: 8000

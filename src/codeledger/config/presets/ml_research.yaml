@@ -1,0 +1,73 @@
+# CodeLedger Preset: ML Research
+project:
+  language: python
+  type: research
+  phase_style: phased
+
+cadence:
+  n_value: 3
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 3500
+  max_output_tokens: 6000
+
+template_sections:
+  - id: status
+    name: Experiment Status
+    priority: 1
+    format: table
+  - id: architecture
+    name: Model Architecture & Training Pipeline
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Design Decisions & Hypotheses
+    priority: 1
+    format: table
+  - id: logic
+    name: Training Loop & Loss Functions
+    priority: 1
+    format: prose
+    depth: non_obvious_only
+  - id: data_flow
+    name: Data Pipeline & Metrics Flow
+    priority: 2
+    format: ascii_diagram
+  - id: edge_cases
+    name: Edge Cases & Failure Modes
+    priority: 2
+    format: table
+  - id: interview
+    name: Interview & Learning Notes
+    priority: 2
+    format: qa
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "**/*.py"
+    - "*.yaml"
+    - "*.toml"
+    - "**/*.json"
+  exclude_patterns:
+    - "data/**"
+    - "checkpoints/**"
+    - "wandb/**"
+    - "__pycache__/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - ".venv/**"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: balanced
+  max_doc_tokens: 8000

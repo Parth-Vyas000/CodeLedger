@@ -1,0 +1,67 @@
+# CodeLedger Preset: Data Pipeline
+project:
+  language: python
+  type: data_pipeline
+  phase_style: continuous
+
+cadence:
+  n_value: 3
+  trigger: manual
+
+model:
+  tier: api
+  provider: anthropic
+  model_name: claude-sonnet-4-20250514
+  api_key_env: ANTHROPIC_API_KEY
+  max_input_tokens: 2500
+  max_output_tokens: 4000
+
+template_sections:
+  - id: status
+    name: Pipeline Status
+    priority: 1
+    format: table
+  - id: architecture
+    name: Pipeline Architecture
+    priority: 1
+    format: tree_and_yaml
+  - id: decisions
+    name: Decision Rationale
+    priority: 1
+    format: table
+  - id: logic
+    name: ETL & Transformation Logic
+    priority: 1
+    format: prose
+    depth: non_obvious_only
+  - id: data_flow
+    name: Data Flow & Schema
+    priority: 1
+    format: ascii_diagram
+  - id: edge_cases
+    name: Edge Cases & Data Validation
+    priority: 2
+    format: table
+  - id: commands
+    name: Quick Reference
+    priority: 1
+    format: code_blocks
+
+focus:
+  include_patterns:
+    - "**/*.py"
+    - "**/*.sql"
+    - "*.yaml"
+    - "*.toml"
+  exclude_patterns:
+    - "tests/**"
+    - "__pycache__/**"
+    - ".git/**"
+    - ".codeledger/**"
+    - ".venv/**"
+  skip_trivial: true
+
+output:
+  format: markdown
+  compression: balanced
+  max_doc_tokens: 6000
