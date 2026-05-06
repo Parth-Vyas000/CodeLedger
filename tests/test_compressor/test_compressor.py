@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+from codeledger.compressor.scope_engine import trim_to_budget
 from codeledger.compressor.token_compressor import (
-    compress_function,
     compress_class,
     compress_file,
+    compress_function,
     estimate_tokens,
 )
-from codeledger.compressor.scope_engine import trim_to_budget
 from codeledger.config.schema import DEFAULT_SECTIONS
 from codeledger.parser.base import (
     ParsedClass,
@@ -24,10 +24,7 @@ def _make_function(name: str = "helper", params: int = 2) -> ParsedFunction:
         name=name,
         line_start=1,
         line_end=10,
-        parameters=[
-            ParsedParameter(name=f"arg{i}", annotation="int")
-            for i in range(params)
-        ],
+        parameters=[ParsedParameter(name=f"arg{i}", annotation="int") for i in range(params)],
         return_annotation="int",
         docstring="A helper function.",
         decorators=[],
@@ -95,6 +92,10 @@ class TestCompressor:
         from codeledger.compressor.token_compressor import compress_project
 
         compressed = compress_project([parsed])
-        trimmed_files, trimmed_sections = trim_to_budget(compressed, DEFAULT_SECTIONS, input_token_budget=100)
+        trimmed_files, _trimmed_sections = trim_to_budget(
+            compressed, DEFAULT_SECTIONS, input_token_budget=100
+        )
         # Should have reduced the payload
-        assert len(str(trimmed_files)) <= len(str(compressed)) or len(trimmed_files) <= len(compressed)
+        assert len(str(trimmed_files)) <= len(str(compressed)) or len(trimmed_files) <= len(
+            compressed
+        )

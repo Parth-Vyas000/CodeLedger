@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import hashlib
-import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from ruamel.yaml import YAML
 
@@ -42,8 +40,8 @@ class FileChange:
 
     path: str
     change_type: str  # created | modified | deleted
-    old_hash: Optional[str] = None
-    new_hash: Optional[str] = None
+    old_hash: str | None = None
+    new_hash: str | None = None
     lines_before: int = 0
     lines_after: int = 0
 
@@ -91,7 +89,7 @@ class Snapshot:
 
     snapshot_id: str
     timestamp: str
-    doc_id: Optional[str]
+    doc_id: str | None
     files: dict[str, FileSnapshot] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -110,7 +108,7 @@ class Snapshot:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Snapshot":
+    def from_dict(cls, data: dict) -> Snapshot:
         files = {}
         for path, fdata in data.get("files", {}).items():
             files[path] = FileSnapshot(
@@ -141,7 +139,7 @@ def hash_file(filepath: str) -> str:
 
 def create_snapshot(
     manifest: FileManifest,
-    doc_id: Optional[str] = None,
+    doc_id: str | None = None,
 ) -> Snapshot:
     """Create a snapshot from a file manifest by hashing all files."""
     now = datetime.now(timezone.utc)
@@ -175,24 +173,28 @@ def compare_snapshots(old: Snapshot, new: Snapshot) -> SnapshotDiff:
     # Created files
     for path in new_paths - old_paths:
         nf = new.files[path]
-        diff.changes.append(FileChange(
-            path=path,
-            change_type=ChangeType.CREATED,
-            new_hash=nf.hash,
-            lines_after=nf.lines,
-        ))
+        diff.changes.append(
+            FileChange(
+                path=path,
+                change_type=ChangeType.CREATED,
+                new_hash=nf.hash,
+                lines_after=nf.lines,
+            )
+        )
         diff.files_created += 1
         diff.total_lines_added += nf.lines
 
     # Deleted files
     for path in old_paths - new_paths:
         of = old.files[path]
-        diff.changes.append(FileChange(
-            path=path,
-            change_type=ChangeType.DELETED,
-            old_hash=of.hash,
-            lines_before=of.lines,
-        ))
+        diff.changes.append(
+            FileChange(
+                path=path,
+                change_type=ChangeType.DELETED,
+                old_hash=of.hash,
+                lines_before=of.lines,
+            )
+        )
         diff.files_deleted += 1
         diff.total_lines_removed += of.lines
 
@@ -202,14 +204,16 @@ def compare_snapshots(old: Snapshot, new: Snapshot) -> SnapshotDiff:
         nf = new.files[path]
         if of.hash != nf.hash:
             delta = nf.lines - of.lines
-            diff.changes.append(FileChange(
-                path=path,
-                change_type=ChangeType.MODIFIED,
-                old_hash=of.hash,
-                new_hash=nf.hash,
-                lines_before=of.lines,
-                lines_after=nf.lines,
-            ))
+            diff.changes.append(
+                FileChange(
+                    path=path,
+                    change_type=ChangeType.MODIFIED,
+                    old_hash=of.hash,
+                    new_hash=nf.hash,
+                    lines_before=of.lines,
+                    lines_after=nf.lines,
+                )
+            )
             diff.files_modified += 1
             if delta > 0:
                 diff.total_lines_added += delta
@@ -240,7 +244,7 @@ def save_snapshot(project_root: Path, snapshot: Snapshot) -> Path:
     return filepath
 
 
-def load_latest_snapshot(project_root: Path) -> Optional[Snapshot]:
+def load_latest_snapshot(project_root: Path) -> Snapshot | None:
     """Load the most recent snapshot, or None if no snapshots exist."""
     snap_dir = _snapshot_dir(project_root)
     latest_path = snap_dir / "latest.yaml"
@@ -248,7 +252,7 @@ def load_latest_snapshot(project_root: Path) -> Optional[Snapshot]:
     if not latest_path.exists():
         return None
 
-    with open(latest_path, "r", encoding="utf-8") as f:
+    with open(latest_path, encoding="utf-8") as f:
         latest_data = yaml.load(f)
 
     if not latest_data or "latest" not in latest_data:
@@ -260,19 +264,19 @@ def load_latest_snapshot(project_root: Path) -> Optional[Snapshot]:
     if not snap_path.exists():
         return None
 
-    with open(snap_path, "r", encoding="utf-8") as f:
+    with open(snap_path, encoding="utf-8") as f:
         data = yaml.load(f)
 
     return Snapshot.from_dict(data)
 
 
-def load_snapshot(project_root: Path, snapshot_id: str) -> Optional[Snapshot]:
+def load_snapshot(project_root: Path, snapshot_id: str) -> Snapshot | None:
     """Load a specific snapshot by ID."""
     snap_path = _snapshot_dir(project_root) / f"{snapshot_id}.yaml"
     if not snap_path.exists():
         return None
 
-    with open(snap_path, "r", encoding="utf-8") as f:
+    with open(snap_path, encoding="utf-8") as f:
         data = yaml.load(f)
 
     return Snapshot.from_dict(data)

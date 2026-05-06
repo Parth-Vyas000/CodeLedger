@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import json
 import time
-import urllib.request
 import urllib.error
-from typing import Optional
+import urllib.request
 
 from codeledger.generator.api_client import ModelResponse
 
@@ -24,17 +23,19 @@ def call_ollama(
     """
     url = f"{base_url}/api/chat"
 
-    payload = json.dumps({
-        "model": model_name,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "stream": False,
-        "options": {
-            "num_predict": max_output_tokens,
-        },
-    }).encode("utf-8")
+    payload = json.dumps(
+        {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "stream": False,
+            "options": {
+                "num_predict": max_output_tokens,
+            },
+        }
+    ).encode("utf-8")
 
     req = urllib.request.Request(
         url,
@@ -50,8 +51,7 @@ def call_ollama(
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.URLError as e:
         raise ConnectionError(
-            f"Cannot connect to Ollama at {base_url}. "
-            f"Make sure Ollama is running: ollama serve"
+            f"Cannot connect to Ollama at {base_url}. Make sure Ollama is running: ollama serve"
         ) from e
 
     elapsed = (time.monotonic() - start) * 1000

@@ -46,7 +46,7 @@ class TestPromptBuilder:
             {"doc_id": "pd_001", "sections": [{"heading": "Arch", "content": "..."}]},
             {"doc_id": "pd_002", "sections": [{"heading": "Arch", "content": "..."}]},
         ]
-        system, user = build_merge_prompt(summaries, project_name="TestProject")
+        _system, user = build_merge_prompt(summaries, project_name="TestProject")
         assert "TestProject" in user
         assert "pd_001" in user
         assert "Snapshot 1" in user

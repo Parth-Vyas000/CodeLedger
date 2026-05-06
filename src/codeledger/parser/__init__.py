@@ -8,8 +8,8 @@ from codeledger.parser.base import (
     ParsedImport,
     ParsedParameter,
 )
-from codeledger.parser.python_parser import PythonParser
 from codeledger.parser.fallback import FallbackParser
+from codeledger.parser.python_parser import PythonParser
 
 
 def get_parser(language: str) -> BaseParser:

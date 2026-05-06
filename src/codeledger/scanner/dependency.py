@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import ast
 import os
-import re
 from pathlib import Path
-from typing import Optional
 
 from codeledger.scanner.file_scanner import FileManifest
 
@@ -18,7 +16,7 @@ def resolve_python_imports(filepath: str, project_root: str) -> list[str]:
     Ignores standard library and third-party imports (best effort).
     """
     try:
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             source = f.read()
     except OSError:
         return []
@@ -34,9 +32,8 @@ def resolve_python_imports(filepath: str, project_root: str) -> list[str]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.append(node.module)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.append(node.module)
 
     return imports
 

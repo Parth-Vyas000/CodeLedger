@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from codeledger.postprocess.validator import validate_output
-from codeledger.postprocess.formatter import format_doc, _extract_sections
 from codeledger.postprocess.file_manager import (
     Manifest,
     content_hash,
@@ -13,6 +11,8 @@ from codeledger.postprocess.file_manager import (
     save_doc,
     save_manifest,
 )
+from codeledger.postprocess.formatter import _extract_sections, format_doc
+from codeledger.postprocess.validator import validate_output
 
 
 class TestValidator:

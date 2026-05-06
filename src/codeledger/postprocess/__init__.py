@@ -1,7 +1,5 @@
 """Post-processing package — validation, formatting, and file management."""
 
-from codeledger.postprocess.validator import ValidationResult, validate_output
-from codeledger.postprocess.formatter import format_doc, format_merge_doc
 from codeledger.postprocess.file_manager import (
     Manifest,
     load_all_docs,
@@ -9,6 +7,8 @@ from codeledger.postprocess.file_manager import (
     save_doc,
     save_manifest,
 )
+from codeledger.postprocess.formatter import format_doc, format_merge_doc
+from codeledger.postprocess.validator import ValidationResult, validate_output
 
 __all__ = [
     "Manifest",

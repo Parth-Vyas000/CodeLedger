@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -103,7 +101,7 @@ class TemplateSectionConfig(BaseModel):
     name: str
     priority: int = Field(default=2, ge=1, le=3)
     format: SectionFormat = SectionFormat.PROSE
-    depth: Optional[DepthLevel] = None
+    depth: DepthLevel | None = None
 
 
 class FocusConfig(BaseModel):
@@ -186,9 +184,7 @@ DEFAULT_SECTIONS: list[TemplateSectionConfig] = [
         priority=3,
         format=SectionFormat.QA,
     ),
-    TemplateSectionConfig(
-        id="debt", name="Technical Debt", priority=3, format=SectionFormat.TABLE
-    ),
+    TemplateSectionConfig(id="debt", name="Technical Debt", priority=3, format=SectionFormat.TABLE),
     TemplateSectionConfig(
         id="commands",
         name="Quick Reference",

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -25,7 +24,7 @@ app = typer.Typer(
 console = Console()
 
 
-def _resolve_root(project_dir: Optional[Path]) -> Path:
+def _resolve_root(project_dir: Path | None) -> Path:
     """Resolve the project root directory."""
     if project_dir is None:
         return Path.cwd()
@@ -37,16 +36,12 @@ def _resolve_root(project_dir: Optional[Path]) -> Path:
 
 @app.command()
 def init(
-    project_dir: Optional[Path] = typer.Argument(
+    project_dir: Path | None = typer.Argument(
         None, help="Project root directory (defaults to current directory)."
     ),
-    preset: Optional[str] = typer.Option(
-        None, "--preset", "-p", help="Configuration preset to use."
-    ),
-    name: Optional[str] = typer.Option(
-        None, "--name", "-n", help="Project name."
-    ),
-    language: Optional[str] = typer.Option(
+    preset: str | None = typer.Option(None, "--preset", "-p", help="Configuration preset to use."),
+    name: str | None = typer.Option(None, "--name", "-n", help="Project name."),
+    language: str | None = typer.Option(
         None, "--lang", "-l", help="Primary language (python, javascript, etc.)."
     ),
     list_all_presets: bool = typer.Option(
@@ -80,10 +75,10 @@ def init(
         )
     except FileExistsError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
     except ValueError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 # ── generate ──
@@ -91,9 +86,7 @@ def init(
 
 @app.command()
 def generate(
-    project_dir: Optional[Path] = typer.Argument(
-        None, help="Project root directory."
-    ),
+    project_dir: Path | None = typer.Argument(None, help="Project root directory."),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force generation even if no changes detected."
     ),
@@ -108,7 +101,7 @@ def generate(
         config = load_config(root)
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
     with console.status("[bold blue]Scanning project...[/bold blue]"):
         # 1. Scan files
@@ -127,8 +120,7 @@ def generate(
             exclude_patterns=config.focus.exclude_patterns,
         )
         console.print(
-            f"  Scanned [bold]{manifest.total_files}[/bold] files "
-            f"({manifest.total_lines} lines)"
+            f"  Scanned [bold]{manifest.total_files}[/bold] files ({manifest.total_lines} lines)"
         )
 
         # 2. Snapshot comparison
@@ -138,7 +130,9 @@ def generate(
         if old_snapshot:
             diff = compare_snapshots(old_snapshot, new_snapshot)
             if diff.is_empty and not force:
-                console.print("[yellow]No changes detected.[/yellow] Use --force to generate anyway.")
+                console.print(
+                    "[yellow]No changes detected.[/yellow] Use --force to generate anyway."
+                )
                 raise typer.Exit()
             console.print(
                 f"  Changes: [green]+{diff.files_created}[/green] created, "
@@ -152,10 +146,7 @@ def generate(
         # 3. Build Change DAG
         dag = ProjectDAG()
         dag.build(manifest, root)
-        if diff:
-            subgraph = dag.extract_subgraph(diff)
-        else:
-            subgraph = None
+        subgraph = dag.extract_subgraph(diff) if diff else None
 
     # 4. Classify session
     from codeledger.classifier import SessionType, classify_session
@@ -198,20 +189,22 @@ def generate(
         raise typer.Exit()
 
     if dry_run:
-        console.print(Panel(
-            f"Session type: {classification.session_type.value}\n"
-            f"Input budget: {classification.input_token_budget} tokens\n"
-            f"Output budget: {classification.output_token_budget} tokens\n"
-            f"Files to analyze: {manifest.total_files}\n"
-            f"Model: {config.model.model_name}",
-            title="Dry Run",
-        ))
+        console.print(
+            Panel(
+                f"Session type: {classification.session_type.value}\n"
+                f"Input budget: {classification.input_token_budget} tokens\n"
+                f"Output budget: {classification.output_token_budget} tokens\n"
+                f"Files to analyze: {manifest.total_files}\n"
+                f"Model: {config.model.model_name}",
+                title="Dry Run",
+            )
+        )
         raise typer.Exit()
 
     # 6. Parse and compress
     with console.status("[bold blue]Analyzing code...[/bold blue]"):
-        from codeledger.parser import parse_file
         from codeledger.compressor import compress_project, trim_to_budget
+        from codeledger.parser import parse_file
 
         parsed_files = []
         for fi in manifest.code_files():
@@ -229,7 +222,8 @@ def generate(
         )
 
     # 7. Build prompt and generate
-    from codeledger.generator import build_generation_prompt, generate as gen_call
+    from codeledger.generator import build_generation_prompt
+    from codeledger.generator import generate as gen_call
 
     system_prompt, user_prompt = build_generation_prompt(
         compressed_payload=trimmed_files,
@@ -251,7 +245,7 @@ def generate(
     )
 
     # 8. Validate
-    from codeledger.postprocess import ValidationResult, validate_output
+    from codeledger.postprocess import validate_output
 
     known_paths = {fi.path for fi in manifest.files}
     section_names = [s.name for s in config.template_sections]
@@ -293,11 +287,13 @@ def generate(
     new_snapshot.doc_id = doc_id
     save_snapshot(root, new_snapshot)
 
-    console.print(Panel(
-        f"[green]Documentation generated:[/green] {doc_path.relative_to(root)}\n"
-        f"Doc ID: [bold]{doc_id}[/bold]",
-        title="codeledger generate",
-    ))
+    console.print(
+        Panel(
+            f"[green]Documentation generated:[/green] {doc_path.relative_to(root)}\n"
+            f"Doc ID: [bold]{doc_id}[/bold]",
+            title="codeledger generate",
+        )
+    )
 
 
 # ── merge ──
@@ -305,13 +301,9 @@ def generate(
 
 @app.command()
 def merge(
-    project_dir: Optional[Path] = typer.Argument(
-        None, help="Project root directory."
-    ),
-    local_only: bool = typer.Option(
-        False, "--local", help="Merge locally without calling an LLM."
-    ),
-    output: Optional[Path] = typer.Option(
+    project_dir: Path | None = typer.Argument(None, help="Project root directory."),
+    local_only: bool = typer.Option(False, "--local", help="Merge locally without calling an LLM."),
+    output: Path | None = typer.Option(
         None, "--output", "-o", help="Output file path for merged doc."
     ),
 ) -> None:
@@ -322,29 +314,26 @@ def merge(
         config = load_config(root)
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
-    from codeledger.merge import merge_local as ml, merge_with_llm
+    from codeledger.merge import merge_local as ml
+    from codeledger.merge import merge_with_llm
 
     with console.status("[bold blue]Merging documentation...[/bold blue]"):
-        if local_only:
-            content = ml(root)
-        else:
-            content = merge_with_llm(root, config)
+        content = ml(root) if local_only else merge_with_llm(root, config)
 
     # Write output
-    if output:
-        out_path = output.resolve()
-    else:
-        out_path = root / ".codeledger" / "DOCUMENTATION.md"
+    out_path = output.resolve() if output else root / ".codeledger" / "DOCUMENTATION.md"
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(content, encoding="utf-8")
 
-    console.print(Panel(
-        f"[green]Merged documentation written to:[/green] {out_path}",
-        title="codeledger merge",
-    ))
+    console.print(
+        Panel(
+            f"[green]Merged documentation written to:[/green] {out_path}",
+            title="codeledger merge",
+        )
+    )
 
 
 # ── status ──
@@ -352,9 +341,7 @@ def merge(
 
 @app.command()
 def status(
-    project_dir: Optional[Path] = typer.Argument(
-        None, help="Project root directory."
-    ),
+    project_dir: Path | None = typer.Argument(None, help="Project root directory."),
 ) -> None:
     """Show the current CodeLedger status for a project."""
     root = _resolve_root(project_dir)
@@ -363,7 +350,7 @@ def status(
         config = load_config(root)
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
     from codeledger.postprocess.file_manager import load_manifest
 
@@ -408,9 +395,7 @@ def status(
 
 @app.command()
 def diff(
-    project_dir: Optional[Path] = typer.Argument(
-        None, help="Project root directory."
-    ),
+    project_dir: Path | None = typer.Argument(None, help="Project root directory."),
 ) -> None:
     """Show changes since the last snapshot."""
     root = _resolve_root(project_dir)
@@ -419,7 +404,7 @@ def diff(
         config = load_config(root)
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
     from codeledger.scanner import (
         compare_snapshots,
@@ -432,7 +417,9 @@ def diff(
     old_snapshot = load_latest_snapshot(root)
 
     if not old_snapshot:
-        console.print("[yellow]No previous snapshot found.[/yellow] Run 'codeledger generate' first.")
+        console.print(
+            "[yellow]No previous snapshot found.[/yellow] Run 'codeledger generate' first."
+        )
         raise typer.Exit()
 
     new_snapshot = create_snapshot(manifest)
@@ -483,7 +470,7 @@ def version() -> None:
 @app.command()
 def explain(
     doc_id: str = typer.Argument(..., help="Document ID to explain (e.g., pd_001)."),
-    project_dir: Optional[Path] = typer.Option(
+    project_dir: Path | None = typer.Option(
         None, "--project", "-p", help="Project root directory."
     ),
 ) -> None:

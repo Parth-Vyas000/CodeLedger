@@ -61,44 +61,29 @@ def classify_with_rules(
             confidence=0.90,
             input_token_budget=budgets[0],
             output_token_budget=budgets[1],
-            reason=(
-                f"Trivial: {metrics.files_changed} files, "
-                f"{net_lines} lines changed"
-            ),
+            reason=(f"Trivial: {metrics.files_changed} files, {net_lines} lines changed"),
         )
 
     # --- Minor ---
-    if (
-        metrics.files_changed <= minor_max_files
-        and net_lines <= minor_max_lines
-    ):
+    if metrics.files_changed <= minor_max_files and net_lines <= minor_max_lines:
         budgets = SESSION_BUDGETS[SessionType.MINOR]
         return SessionClassification(
             session_type=SessionType.MINOR,
             confidence=0.85,
             input_token_budget=budgets[0],
             output_token_budget=budgets[1],
-            reason=(
-                f"Minor: {metrics.files_changed} files, "
-                f"{net_lines} lines changed"
-            ),
+            reason=(f"Minor: {metrics.files_changed} files, {net_lines} lines changed"),
         )
 
     # --- Standard ---
-    if (
-        metrics.files_changed <= standard_max_files
-        and net_lines <= standard_max_lines
-    ):
+    if metrics.files_changed <= standard_max_files and net_lines <= standard_max_lines:
         budgets = SESSION_BUDGETS[SessionType.STANDARD]
         return SessionClassification(
             session_type=SessionType.STANDARD,
             confidence=0.85,
             input_token_budget=budgets[0],
             output_token_budget=budgets[1],
-            reason=(
-                f"Standard: {metrics.files_changed} files, "
-                f"{net_lines} lines changed"
-            ),
+            reason=(f"Standard: {metrics.files_changed} files, {net_lines} lines changed"),
         )
 
     # --- Major ---

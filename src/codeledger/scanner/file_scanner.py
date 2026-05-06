@@ -5,10 +5,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import pathspec
-
 
 LANGUAGE_EXTENSIONS: dict[str, list[str]] = {
     "python": [".py"],
@@ -44,14 +42,22 @@ class FileInfo:
     absolute_path: str
     size: int
     lines: int
-    language: Optional[str]
+    language: str | None
     extension: str
 
     def is_code(self) -> bool:
         """Return True if this is a recognized source code file."""
         return self.language in {
-            "python", "javascript", "typescript", "java", "go",
-            "rust", "ruby", "php", "c", "cpp",
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "go",
+            "rust",
+            "ruby",
+            "php",
+            "c",
+            "cpp",
         }
 
 
@@ -73,7 +79,7 @@ class FileManifest:
         """Return files of a specific language."""
         return [f for f in self.files if f.language == language]
 
-    def get_file(self, relative_path: str) -> Optional[FileInfo]:
+    def get_file(self, relative_path: str) -> FileInfo | None:
         """Look up a file by its relative path."""
         for f in self.files:
             if f.path == relative_path:
@@ -81,7 +87,7 @@ class FileManifest:
         return None
 
 
-def detect_language(filepath: Path) -> Optional[str]:
+def detect_language(filepath: Path) -> str | None:
     """Detect the programming language from file extension."""
     return _EXT_TO_LANG.get(filepath.suffix.lower())
 
@@ -89,7 +95,7 @@ def detect_language(filepath: Path) -> Optional[str]:
 def count_lines(filepath: Path) -> int:
     """Count lines in a file. Returns 0 for binary or unreadable files."""
     try:
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             return sum(1 for _ in f)
     except (OSError, UnicodeDecodeError):
         return 0
@@ -102,7 +108,7 @@ def _load_ignore_patterns(project_root: Path) -> list[str]:
     for ignore_file in [".gitignore", ".codeledgerignore"]:
         ignore_path = project_root / ignore_file
         if ignore_path.exists():
-            with open(ignore_path, "r", encoding="utf-8") as f:
+            with open(ignore_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#"):
@@ -130,8 +136,8 @@ def _matches_include(relative_path: str, include_patterns: list[str]) -> bool:
 
 def scan_project(
     project_root: Path,
-    include_patterns: Optional[list[str]] = None,
-    exclude_patterns: Optional[list[str]] = None,
+    include_patterns: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
 ) -> FileManifest:
     """Scan a project directory and build a FileManifest.
 

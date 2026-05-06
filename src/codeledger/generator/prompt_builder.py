@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from codeledger.classifier.session import SessionType
 from codeledger.config.schema import TemplateSectionConfig
-
 
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates" / "prompt_templates"
 
@@ -49,8 +47,8 @@ def build_generation_prompt(
     sections: list[TemplateSectionConfig],
     session_type: SessionType,
     project_name: str = "Project",
-    focus_highlights: Optional[list[str]] = None,
-    deferred_summaries: Optional[list[str]] = None,
+    focus_highlights: list[str] | None = None,
+    deferred_summaries: list[str] | None = None,
 ) -> tuple[str, str]:
     """Build the complete prompt for documentation generation.
 

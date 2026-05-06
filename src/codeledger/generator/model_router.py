@@ -24,6 +24,7 @@ def generate(
     if config.tier == ModelTier.API:
         if config.provider == ModelProvider.ANTHROPIC:
             from codeledger.generator.api_client import call_anthropic
+
             return call_anthropic(
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
@@ -33,6 +34,7 @@ def generate(
             )
         elif config.provider == ModelProvider.OPENAI:
             from codeledger.generator.api_client import call_openai
+
             return call_openai(
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
@@ -46,6 +48,7 @@ def generate(
     elif config.tier == ModelTier.LOCAL:
         if config.provider == ModelProvider.OLLAMA:
             from codeledger.generator.local_client import call_ollama
+
             return call_ollama(
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
@@ -54,8 +57,7 @@ def generate(
             )
         else:
             raise ValueError(
-                f"Unsupported local provider: {config.provider}. "
-                f"Use 'ollama' for local inference."
+                f"Unsupported local provider: {config.provider}. Use 'ollama' for local inference."
             )
 
     raise ValueError(f"Unknown model tier: {config.tier}")

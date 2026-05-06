@@ -6,7 +6,6 @@ import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from ruamel.yaml import YAML
 
@@ -35,7 +34,7 @@ class Manifest:
     """Tracks all generated documentation files."""
 
     docs: list[DocRecord] = field(default_factory=list)
-    last_doc_id: Optional[str] = None
+    last_doc_id: str | None = None
     total_docs: int = 0
     merge_state: str = "pending"  # pending | complete | stale
 
@@ -49,7 +48,7 @@ class Manifest:
         self.last_doc_id = record.doc_id
         self.merge_state = "stale" if self.total_docs > 1 else "pending"
 
-    def get_doc(self, doc_id: str) -> Optional[DocRecord]:
+    def get_doc(self, doc_id: str) -> DocRecord | None:
         for d in self.docs:
             if d.doc_id == doc_id:
                 return d
@@ -78,7 +77,7 @@ class Manifest:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Manifest":
+    def from_dict(cls, data: dict) -> Manifest:
         docs = [
             DocRecord(
                 doc_id=d["doc_id"],
@@ -110,7 +109,7 @@ def load_manifest(project_root: Path) -> Manifest:
     if not manifest_path.exists():
         return Manifest()
 
-    with open(manifest_path, "r", encoding="utf-8") as f:
+    with open(manifest_path, encoding="utf-8") as f:
         data = yaml.load(f)
 
     if not data:

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import textwrap
 
-from codeledger.merge.extractor import extract_doc, extract_sections
 from codeledger.merge.deduplicator import deduplicate_sections, similarity
+from codeledger.merge.extractor import extract_doc, extract_sections
 
 
 class TestExtractor:

@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from codeledger.config.loader import init_project, load_config
-from codeledger.scanner import scan_project, create_snapshot, compare_snapshots
-from codeledger.scanner.change_dag import ProjectDAG
 from codeledger.classifier import classify_session
-from codeledger.parser import parse_file
 from codeledger.compressor import compress_project, trim_to_budget
+from codeledger.config.loader import init_project, load_config
 from codeledger.generator.prompt_builder import build_generation_prompt
+from codeledger.parser import parse_file
+from codeledger.scanner import compare_snapshots, create_snapshot, scan_project
+from codeledger.scanner.change_dag import ProjectDAG
 
 
 class TestPipeline:

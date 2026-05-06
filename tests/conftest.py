@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import textwrap
 from pathlib import Path
 
@@ -18,7 +17,8 @@ def tmp_project(tmp_path: Path) -> Path:
     src = tmp_path / "src"
     src.mkdir()
 
-    (src / "main.py").write_text(textwrap.dedent("""\
+    (src / "main.py").write_text(
+        textwrap.dedent("""\
         \"\"\"Main entry point.\"\"\"
 
         from src.utils import helper
@@ -31,9 +31,12 @@ def tmp_project(tmp_path: Path) -> Path:
 
         if __name__ == "__main__":
             main()
-    """), encoding="utf-8")
+    """),
+        encoding="utf-8",
+    )
 
-    (src / "utils.py").write_text(textwrap.dedent("""\
+    (src / "utils.py").write_text(
+        textwrap.dedent("""\
         \"\"\"Utility functions.\"\"\"
 
 
@@ -44,9 +47,12 @@ def tmp_project(tmp_path: Path) -> Path:
 
         def unused_func():
             pass
-    """), encoding="utf-8")
+    """),
+        encoding="utf-8",
+    )
 
-    (src / "models.py").write_text(textwrap.dedent("""\
+    (src / "models.py").write_text(
+        textwrap.dedent("""\
         \"\"\"Data models.\"\"\"
 
         from dataclasses import dataclass
@@ -59,7 +65,9 @@ def tmp_project(tmp_path: Path) -> Path:
 
             def display_name(self) -> str:
                 return self.name.title()
-    """), encoding="utf-8")
+    """),
+        encoding="utf-8",
+    )
 
     # Create a non-code file
     (tmp_path / "README.md").write_text("# Test Project\n", encoding="utf-8")

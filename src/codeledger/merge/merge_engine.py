@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional
 
-from codeledger.config.schema import ModelConfig, CodeLedgerConfig
+from codeledger.config.schema import CodeLedgerConfig
 from codeledger.generator.model_router import generate
 from codeledger.generator.prompt_builder import build_merge_prompt
-from codeledger.merge.deduplicator import MergedSection, deduplicate_sections
+from codeledger.merge.deduplicator import deduplicate_sections
 from codeledger.merge.extractor import ExtractedDoc, ExtractedSection, extract_doc
 from codeledger.postprocess.file_manager import load_all_docs, load_manifest, save_manifest
 from codeledger.postprocess.formatter import format_merge_doc
@@ -33,17 +32,21 @@ def _build_doc_summaries(docs: list[ExtractedDoc]) -> list[dict]:
     for doc in docs:
         sections_data = []
         for s in doc.sections:
-            sections_data.append({
-                "heading": s.heading,
-                "words": s.word_count,
-                "content": s.content[:500] if s.word_count > 100 else s.content,
-            })
-        summaries.append({
-            "doc_id": doc.doc_id,
-            "session_type": doc.session_type,
-            "timestamp": doc.timestamp,
-            "sections": sections_data,
-        })
+            sections_data.append(
+                {
+                    "heading": s.heading,
+                    "words": s.word_count,
+                    "content": s.content[:500] if s.word_count > 100 else s.content,
+                }
+            )
+        summaries.append(
+            {
+                "doc_id": doc.doc_id,
+                "session_type": doc.session_type,
+                "timestamp": doc.timestamp,
+                "sections": sections_data,
+            }
+        )
     return summaries
 
 

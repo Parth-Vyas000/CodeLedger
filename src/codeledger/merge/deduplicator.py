@@ -45,37 +45,40 @@ def deduplicate_sections(
     """
     merged: list[MergedSection] = []
 
-    for key, sections in section_groups.items():
+    for _key, sections in section_groups.items():
         if not sections:
             continue
 
         if len(sections) == 1:
             s = sections[0]
-            merged.append(MergedSection(
-                heading=s.heading,
-                content=s.content,
-                section_id=s.section_id,
-                source_doc_ids=[s.doc_id],
-                strategy="latest",
-            ))
+            merged.append(
+                MergedSection(
+                    heading=s.heading,
+                    content=s.content,
+                    section_id=s.section_id,
+                    source_doc_ids=[s.doc_id],
+                    strategy="latest",
+                )
+            )
             continue
 
         # Compare the latest with all previous versions
         latest = sections[-1]
         all_similar = all(
-            similarity(s.content, latest.content) > similarity_threshold
-            for s in sections[:-1]
+            similarity(s.content, latest.content) > similarity_threshold for s in sections[:-1]
         )
 
         if all_similar:
             # All versions are essentially the same — keep latest
-            merged.append(MergedSection(
-                heading=latest.heading,
-                content=latest.content,
-                section_id=latest.section_id,
-                source_doc_ids=[s.doc_id for s in sections],
-                strategy="latest",
-            ))
+            merged.append(
+                MergedSection(
+                    heading=latest.heading,
+                    content=latest.content,
+                    section_id=latest.section_id,
+                    source_doc_ids=[s.doc_id for s in sections],
+                    strategy="latest",
+                )
+            )
         else:
             # Significant evolution — accumulate with timeline markers
             parts: list[str] = []
@@ -89,12 +92,14 @@ def deduplicate_sections(
                 if is_unique or s is latest:
                     parts.append(f"*[{s.doc_id}]*\n\n{s.content}")
 
-            merged.append(MergedSection(
-                heading=latest.heading,
-                content="\n\n---\n\n".join(parts),
-                section_id=latest.section_id,
-                source_doc_ids=[s.doc_id for s in sections],
-                strategy="accumulated",
-            ))
+            merged.append(
+                MergedSection(
+                    heading=latest.heading,
+                    content="\n\n---\n\n".join(parts),
+                    section_id=latest.section_id,
+                    source_doc_ids=[s.doc_id for s in sections],
+                    strategy="accumulated",
+                )
+            )
 
     return merged

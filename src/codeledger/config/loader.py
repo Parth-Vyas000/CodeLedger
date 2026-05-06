@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from ruamel.yaml import YAML
 
@@ -51,7 +50,7 @@ def load_config(project_root: Path) -> CodeLedgerConfig:
             f"No CodeLedger config found at {config_path}. Run 'codeledger init' first."
         )
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         raw = yaml.load(f)
 
     if raw is None:
@@ -91,7 +90,7 @@ def load_preset(preset_name: str) -> CodeLedgerConfig:
             f"Unknown preset '{preset_name}'. Available: {', '.join(sorted(available))}"
         )
 
-    with open(preset_path, "r", encoding="utf-8") as f:
+    with open(preset_path, encoding="utf-8") as f:
         raw = yaml.load(f)
 
     if raw is None:
@@ -108,9 +107,9 @@ def list_presets() -> list[str]:
 
 def init_project(
     project_root: Path,
-    preset: Optional[str] = None,
-    project_name: Optional[str] = None,
-    language: Optional[str] = None,
+    preset: str | None = None,
+    project_name: str | None = None,
+    language: str | None = None,
 ) -> CodeLedgerConfig:
     """Initialize a new CodeLedger project.
 
@@ -120,14 +119,10 @@ def init_project(
     config_path = get_config_path(project_root)
     if config_path.exists():
         raise FileExistsError(
-            f"CodeLedger already initialized at {config_path}. "
-            "Delete .codeledger/ to reinitialize."
+            f"CodeLedger already initialized at {config_path}. Delete .codeledger/ to reinitialize."
         )
 
-    if preset:
-        config = load_preset(preset)
-    else:
-        config = CodeLedgerConfig()
+    config = load_preset(preset) if preset else CodeLedgerConfig()
 
     if project_name:
         config.project.name = project_name

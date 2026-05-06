@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -32,9 +31,7 @@ def call_anthropic(
 
     api_key = os.environ.get(api_key_env)
     if not api_key:
-        raise EnvironmentError(
-            f"API key not found. Set the {api_key_env} environment variable."
-        )
+        raise OSError(f"API key not found. Set the {api_key_env} environment variable.")
 
     client = anthropic.Anthropic(api_key=api_key)
 
@@ -74,9 +71,7 @@ def call_openai(
 
     api_key = os.environ.get(api_key_env)
     if not api_key:
-        raise EnvironmentError(
-            f"API key not found. Set the {api_key_env} environment variable."
-        )
+        raise OSError(f"API key not found. Set the {api_key_env} environment variable.")
 
     client = openai.OpenAI(api_key=api_key)
 

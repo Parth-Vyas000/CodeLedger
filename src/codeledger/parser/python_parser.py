@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
-from typing import Optional
 
 from codeledger.parser.base import (
     BaseParser,
@@ -162,11 +161,13 @@ class PythonParser(BaseParser):
             if default_idx >= 0 and default_idx < len(args.defaults):
                 default = self._unparse_safe(args.defaults[default_idx])
 
-            params.append(ParsedParameter(
-                name=arg.arg,
-                annotation=annotation,
-                default=default,
-            ))
+            params.append(
+                ParsedParameter(
+                    name=arg.arg,
+                    annotation=annotation,
+                    default=default,
+                )
+            )
 
         # *args
         if args.vararg:
@@ -202,11 +203,13 @@ class PythonParser(BaseParser):
     def _parse_import(self, node: ast.Import) -> list[ParsedImport]:
         results = []
         for alias in node.names:
-            results.append(ParsedImport(
-                module=alias.name,
-                is_from=False,
-                alias=alias.asname,
-            ))
+            results.append(
+                ParsedImport(
+                    module=alias.name,
+                    is_from=False,
+                    alias=alias.asname,
+                )
+            )
         return results
 
     def _parse_import_from(self, node: ast.ImportFrom) -> ParsedImport:
@@ -221,9 +224,7 @@ class PythonParser(BaseParser):
         """Rough cyclomatic complexity estimate — count branches."""
         complexity = 1
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor | ast.ExceptHandler):
                 complexity += 1
             elif isinstance(child, ast.BoolOp):
                 complexity += len(child.values) - 1

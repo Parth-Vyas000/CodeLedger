@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -37,7 +36,7 @@ class ValidationResult:
 def validate_output(
     content: str,
     expected_section_names: list[str],
-    known_file_paths: Optional[set[str]] = None,
+    known_file_paths: set[str] | None = None,
 ) -> ValidationResult:
     """Validate generated documentation content.
 
@@ -51,11 +50,13 @@ def validate_output(
 
     if not content or len(content.strip()) < 50:
         result.is_valid = False
-        result.warnings.append(ValidationWarning(
-            category="format",
-            message="Generated content is empty or too short",
-            severity="error",
-        ))
+        result.warnings.append(
+            ValidationWarning(
+                category="format",
+                message="Generated content is empty or too short",
+                severity="error",
+            )
+        )
         return result
 
     # Check for required sections (look for ## headings)
@@ -66,17 +67,16 @@ def validate_output(
     for section_name in expected_section_names:
         section_lower = section_name.lower().strip()
         # Fuzzy match: check if the section name appears in any heading
-        found = any(
-            section_lower in h or h in section_lower
-            for h in heading_lower
-        )
+        found = any(section_lower in h or h in section_lower for h in heading_lower)
         if not found:
             result.sections_missing.append(section_name)
-            result.warnings.append(ValidationWarning(
-                category="missing_section",
-                message=f"Expected section '{section_name}' not found in output",
-                severity="warning",
-            ))
+            result.warnings.append(
+                ValidationWarning(
+                    category="missing_section",
+                    message=f"Expected section '{section_name}' not found in output",
+                    severity="warning",
+                )
+            )
 
     # Check for hallucinated file paths
     if known_file_paths:
@@ -93,15 +93,15 @@ def validate_output(
                 if normalized not in known_file_paths:
                     # Check partial match (just filename)
                     filename = normalized.split("/")[-1]
-                    partial_match = any(
-                        p.endswith(filename) for p in known_file_paths
-                    )
+                    partial_match = any(p.endswith(filename) for p in known_file_paths)
                     if not partial_match:
-                        result.warnings.append(ValidationWarning(
-                            category="hallucination",
-                            message=f"Possible hallucinated file path: `{ref}`",
-                            severity="warning",
-                        ))
+                        result.warnings.append(
+                            ValidationWarning(
+                                category="hallucination",
+                                message=f"Possible hallucinated file path: `{ref}`",
+                                severity="warning",
+                            )
+                        )
 
     # Check for excessive hedging
     hedging_patterns = [
@@ -112,19 +112,23 @@ def validate_output(
         hedging_count += len(re.findall(pattern, content, re.IGNORECASE))
 
     if hedging_count > 10:
-        result.warnings.append(ValidationWarning(
-            category="hedging",
-            message=f"Excessive hedging language detected ({hedging_count} instances). "
-                    "The model may be uncertain about the project structure.",
-            severity="warning",
-        ))
+        result.warnings.append(
+            ValidationWarning(
+                category="hedging",
+                message=f"Excessive hedging language detected ({hedging_count} instances). "
+                "The model may be uncertain about the project structure.",
+                severity="warning",
+            )
+        )
 
     # Check markdown structure
     if not re.search(r"^#", content, re.MULTILINE):
-        result.warnings.append(ValidationWarning(
-            category="format",
-            message="No markdown headings found — output may not be properly structured",
-            severity="warning",
-        ))
+        result.warnings.append(
+            ValidationWarning(
+                category="format",
+                message="No markdown headings found — output may not be properly structured",
+                severity="warning",
+            )
+        )
 
     return result

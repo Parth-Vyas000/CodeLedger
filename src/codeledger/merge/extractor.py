@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -14,7 +13,7 @@ class ExtractedSection:
     heading: str
     content: str
     doc_id: str
-    section_id: Optional[str] = None  # matched config section id
+    section_id: str | None = None  # matched config section id
 
     @property
     def word_count(self) -> int:
@@ -30,7 +29,7 @@ class ExtractedDoc:
     timestamp: str
     sections: list[ExtractedSection] = field(default_factory=list)
 
-    def get_section(self, heading: str) -> Optional[ExtractedSection]:
+    def get_section(self, heading: str) -> ExtractedSection | None:
         heading_lower = heading.lower()
         for s in self.sections:
             if heading_lower in s.heading.lower() or s.heading.lower() in heading_lower:
@@ -64,7 +63,7 @@ _HEADING_TO_ID: dict[str, str] = {
 }
 
 
-def _match_section_id(heading: str) -> Optional[str]:
+def _match_section_id(heading: str) -> str | None:
     """Try to match a heading to a known section ID."""
     heading_lower = heading.lower()
     for keyword, section_id in _HEADING_TO_ID.items():
@@ -91,12 +90,14 @@ def extract_sections(content: str, doc_id: str) -> list[ExtractedSection]:
         body = parts[i + 1].strip()
 
         if body:  # skip empty sections
-            sections.append(ExtractedSection(
-                heading=heading,
-                content=body,
-                doc_id=doc_id,
-                section_id=_match_section_id(heading),
-            ))
+            sections.append(
+                ExtractedSection(
+                    heading=heading,
+                    content=body,
+                    doc_id=doc_id,
+                    section_id=_match_section_id(heading),
+                )
+            )
         i += 2
 
     return sections

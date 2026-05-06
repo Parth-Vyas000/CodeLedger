@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from codeledger.scanner.file_scanner import FileManifest, scan_project
+from codeledger.scanner.file_scanner import scan_project
 from codeledger.scanner.snapshot import (
-    Snapshot,
     compare_snapshots,
     create_snapshot,
     load_latest_snapshot,

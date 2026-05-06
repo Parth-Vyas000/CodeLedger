@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from pathlib import Path
 
 from codeledger.scanner.dependency import build_import_graph, build_reverse_graph
 from codeledger.scanner.file_scanner import FileManifest
-from codeledger.scanner.snapshot import ChangeType, FileChange, SnapshotDiff
+from codeledger.scanner.snapshot import ChangeType, SnapshotDiff
 
 
 @dataclass
@@ -19,7 +19,7 @@ class DAGNode:
     lines_before: int = 0
     lines_after: int = 0
     lines_delta: int = 0
-    dependencies_in: set[str] = field(default_factory=set)   # files this imports
+    dependencies_in: set[str] = field(default_factory=set)  # files this imports
     dependencies_out: set[str] = field(default_factory=set)  # files that import this
 
     @property
@@ -69,29 +69,31 @@ class ChangeSubgraph:
     def is_empty(self) -> bool:
         return len(self.changed_nodes) == 0
 
-    def metrics(self) -> "ChangeMetrics":
+    def metrics(self) -> ChangeMetrics:
         """Compute aggregate change metrics for session classification."""
         files_changed = len(self.changed_nodes)
         new_files = sum(
-            1 for n in self.changed_nodes.values()
-            if n.change_type == ChangeType.CREATED
+            1 for n in self.changed_nodes.values() if n.change_type == ChangeType.CREATED
         )
         files_deleted = sum(
-            1 for n in self.changed_nodes.values()
-            if n.change_type == ChangeType.DELETED
+            1 for n in self.changed_nodes.values() if n.change_type == ChangeType.DELETED
         )
         lines_added = sum(
-            max(0, n.lines_delta) for n in self.changed_nodes.values()
+            max(0, n.lines_delta)
+            for n in self.changed_nodes.values()
             if n.change_type == ChangeType.MODIFIED
         ) + sum(
-            n.lines_after for n in self.changed_nodes.values()
+            n.lines_after
+            for n in self.changed_nodes.values()
             if n.change_type == ChangeType.CREATED
         )
         lines_removed = sum(
-            abs(min(0, n.lines_delta)) for n in self.changed_nodes.values()
+            abs(min(0, n.lines_delta))
+            for n in self.changed_nodes.values()
             if n.change_type == ChangeType.MODIFIED
         ) + sum(
-            n.lines_before for n in self.changed_nodes.values()
+            n.lines_before
+            for n in self.changed_nodes.values()
             if n.change_type == ChangeType.DELETED
         )
         affected_count = len(self.affected_nodes)
@@ -134,12 +136,10 @@ class ProjectDAG:
         self._forward_graph: dict[str, set[str]] = {}
         self._reverse_graph: dict[str, set[str]] = {}
 
-    def build(self, manifest: FileManifest, project_root: "Path") -> None:
+    def build(self, manifest: FileManifest, project_root: Path) -> None:
         """Build the DAG from a file manifest."""
-        from pathlib import Path as P
-
         # Build import graph
-        self._forward_graph = build_import_graph(manifest, P(project_root))
+        self._forward_graph = build_import_graph(manifest, Path(project_root))
         self._reverse_graph = build_reverse_graph(self._forward_graph)
 
         # Create nodes for all files

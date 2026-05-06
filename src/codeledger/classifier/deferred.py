@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from ruamel.yaml import YAML
 
@@ -44,9 +43,7 @@ class PendingChanges:
         """Check if accumulated changes should trigger a documentation flush."""
         if self.sessions_deferred >= max_deferred:
             return True
-        if self.accumulated_magnitude >= flush_threshold:
-            return True
-        return False
+        return self.accumulated_magnitude >= flush_threshold
 
     def add_session(
         self,
@@ -101,7 +98,7 @@ class PendingChanges:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "PendingChanges":
+    def from_dict(cls, data: dict) -> PendingChanges:
         sessions = [
             DeferredSession(
                 session_id=s["session_id"],
@@ -125,7 +122,7 @@ def load_pending(project_root: Path) -> PendingChanges:
     if not filepath.exists():
         return PendingChanges()
 
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         data = yaml.load(f)
 
     if not data:

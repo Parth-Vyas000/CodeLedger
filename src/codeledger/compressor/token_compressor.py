@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from codeledger.parser.base import ParsedClass, ParsedFile, ParsedFunction
 
 
@@ -55,10 +53,14 @@ def compress_class(cls: ParsedClass, verbose: bool = False) -> dict:
     if cls.methods:
         methods = []
         for m in cls.methods:
-            if m.name.startswith("__") and m.name.endswith("__") and not verbose:
+            if (
+                m.name.startswith("__")
+                and m.name.endswith("__")
+                and not verbose
+                and m.name != "__init__"
+            ):
                 # Skip dunder methods in non-verbose mode except __init__
-                if m.name != "__init__":
-                    continue
+                continue
             methods.append(compress_function(m, verbose=verbose))
         if methods:
             data["methods"] = methods
@@ -73,7 +75,7 @@ def compress_file(
     parsed: ParsedFile,
     verbose: bool = False,
     skip_trivial: bool = True,
-) -> Optional[dict]:
+) -> dict | None:
     """Compress a parsed file into minimal YAML-friendly representation.
 
     Returns None if the file is trivial and skip_trivial is True.
@@ -134,5 +136,6 @@ def estimate_tokens(data: list[dict]) -> int:
     Rule of thumb: ~4 characters per token for YAML.
     """
     import json
+
     text = json.dumps(data, indent=2)
     return len(text) // 4

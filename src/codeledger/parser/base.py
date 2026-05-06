@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -12,8 +11,8 @@ class ParsedParameter:
     """A function/method parameter."""
 
     name: str
-    annotation: Optional[str] = None
-    default: Optional[str] = None
+    annotation: str | None = None
+    default: str | None = None
 
 
 @dataclass
@@ -32,9 +31,9 @@ class ParsedFunction:
     line_start: int
     line_end: int
     parameters: list[ParsedParameter] = field(default_factory=list)
-    return_annotation: Optional[str] = None
+    return_annotation: str | None = None
     decorators: list[ParsedDecorator] = field(default_factory=list)
-    docstring: Optional[str] = None
+    docstring: str | None = None
     is_async: bool = False
     is_method: bool = False
     is_property: bool = False
@@ -46,8 +45,7 @@ class ParsedFunction:
     def signature(self) -> str:
         """Human-readable function signature."""
         params = ", ".join(
-            p.name + (f": {p.annotation}" if p.annotation else "")
-            for p in self.parameters
+            p.name + (f": {p.annotation}" if p.annotation else "") for p in self.parameters
         )
         ret = f" -> {self.return_annotation}" if self.return_annotation else ""
         prefix = "async " if self.is_async else ""
@@ -64,7 +62,7 @@ class ParsedClass:
     bases: list[str] = field(default_factory=list)
     decorators: list[ParsedDecorator] = field(default_factory=list)
     methods: list[ParsedFunction] = field(default_factory=list)
-    docstring: Optional[str] = None
+    docstring: str | None = None
     class_variables: list[str] = field(default_factory=list)
 
     @property
@@ -83,7 +81,7 @@ class ParsedImport:
     module: str
     names: list[str] = field(default_factory=list)  # specific names imported
     is_from: bool = False
-    alias: Optional[str] = None
+    alias: str | None = None
 
 
 @dataclass
@@ -95,7 +93,7 @@ class ParsedFile:
     functions: list[ParsedFunction] = field(default_factory=list)
     classes: list[ParsedClass] = field(default_factory=list)
     imports: list[ParsedImport] = field(default_factory=list)
-    module_docstring: Optional[str] = None
+    module_docstring: str | None = None
     global_variables: list[str] = field(default_factory=list)
     total_lines: int = 0
     has_entry_point: bool = False  # e.g., if __name__ == "__main__"
@@ -115,11 +113,7 @@ class ParsedFile:
     @property
     def is_trivial(self) -> bool:
         """True if file is likely boilerplate (__init__.py, setup.py with no logic)."""
-        return (
-            self.function_count == 0
-            and len(self.classes) == 0
-            and self.total_lines < 20
-        )
+        return self.function_count == 0 and len(self.classes) == 0 and self.total_lines < 20
 
 
 class BaseParser(ABC):
