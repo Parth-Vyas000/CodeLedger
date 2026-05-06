@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "codeledger"
-version = "0.1.1"
+version = "0.1.2"
 description = "Auto-generated code comprehension for AI-assisted development — documentation as a development cadence."
 readme = "README.md"
 license = { text = "MIT" }
