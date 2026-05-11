@@ -178,8 +178,10 @@ class PythonParser(BaseParser):
         for i, arg in enumerate(args.kwonlyargs):
             annotation = self._unparse_safe(arg.annotation) if arg.annotation else None
             default = None
-            if i < len(args.kw_defaults) and args.kw_defaults[i] is not None:
-                default = self._unparse_safe(args.kw_defaults[i])
+            if i < len(args.kw_defaults):
+                kw_default = args.kw_defaults[i]
+                if kw_default is not None:
+                    default = self._unparse_safe(kw_default)
             params.append(ParsedParameter(name=arg.arg, annotation=annotation, default=default))
 
         # **kwargs

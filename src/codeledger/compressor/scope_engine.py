@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from codeledger.compressor.token_compressor import estimate_tokens
 from codeledger.config.schema import TemplateSectionConfig
 
 
 def trim_to_budget(
-    compressed_files: list[dict],
+    compressed_files: list[dict[str, Any]],
     sections: list[TemplateSectionConfig],
     input_token_budget: int,
-) -> tuple[list[dict], list[TemplateSectionConfig]]:
+) -> tuple[list[dict[str, Any]], list[TemplateSectionConfig]]:
     """Trim payload and sections to fit within the input token budget.
 
     Strategy (applied in order):

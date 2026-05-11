@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from codeledger.parser.base import ParsedClass, ParsedFile, ParsedFunction
 
 
-def compress_function(func: ParsedFunction, verbose: bool = False) -> dict:
+def compress_function(func: ParsedFunction, verbose: bool = False) -> dict[str, Any]:
     """Compress a parsed function into minimal representation."""
-    data: dict = {"name": func.name}
+    data: dict[str, Any] = {"name": func.name}
 
     if func.parameters:
         params = []
@@ -37,9 +39,9 @@ def compress_function(func: ParsedFunction, verbose: bool = False) -> dict:
     return data
 
 
-def compress_class(cls: ParsedClass, verbose: bool = False) -> dict:
+def compress_class(cls: ParsedClass, verbose: bool = False) -> dict[str, Any]:
     """Compress a parsed class into minimal representation."""
-    data: dict = {"name": cls.name}
+    data: dict[str, Any] = {"name": cls.name}
 
     if cls.bases:
         data["bases"] = cls.bases
@@ -75,7 +77,7 @@ def compress_file(
     parsed: ParsedFile,
     verbose: bool = False,
     skip_trivial: bool = True,
-) -> dict | None:
+) -> dict[str, Any] | None:
     """Compress a parsed file into minimal YAML-friendly representation.
 
     Returns None if the file is trivial and skip_trivial is True.
@@ -83,7 +85,7 @@ def compress_file(
     if skip_trivial and parsed.is_trivial:
         return None
 
-    data: dict = {
+    data: dict[str, Any] = {
         "path": parsed.path,
         "lang": parsed.language,
         "lines": parsed.total_lines,
@@ -120,7 +122,7 @@ def compress_project(
     parsed_files: list[ParsedFile],
     verbose: bool = False,
     skip_trivial: bool = True,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Compress all parsed files into a list of minimal representations."""
     result = []
     for pf in parsed_files:
@@ -130,7 +132,7 @@ def compress_project(
     return result
 
 
-def estimate_tokens(data: list[dict]) -> int:
+def estimate_tokens(data: list[dict[str, Any]]) -> int:
     """Rough token count estimate for compressed YAML data.
 
     Rule of thumb: ~4 characters per token for YAML.

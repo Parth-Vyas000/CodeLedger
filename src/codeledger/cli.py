@@ -413,7 +413,11 @@ def diff(
         scan_project,
     )
 
-    manifest = scan_project(root, config.focus)
+    manifest = scan_project(
+        root,
+        include_patterns=config.focus.include_patterns,
+        exclude_patterns=config.focus.exclude_patterns,
+    )
     old_snapshot = load_latest_snapshot(root)
 
     if not old_snapshot:

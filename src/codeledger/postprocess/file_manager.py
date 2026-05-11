@@ -6,6 +6,7 @@ import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -57,7 +58,7 @@ class Manifest:
     def doc_paths(self) -> list[str]:
         return [d.path for d in self.docs]
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "docs": [
                 {
@@ -77,7 +78,7 @@ class Manifest:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> Manifest:
+    def from_dict(cls, data: dict[str, Any]) -> Manifest:
         docs = [
             DocRecord(
                 doc_id=d["doc_id"],

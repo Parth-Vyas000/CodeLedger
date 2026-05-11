@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -81,7 +82,7 @@ class PendingChanges:
         self.sessions_deferred = 0
         return flushed
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "pending_sessions": [
                 {
@@ -98,7 +99,7 @@ class PendingChanges:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> PendingChanges:
+    def from_dict(cls, data: dict[str, Any]) -> PendingChanges:
         sessions = [
             DeferredSession(
                 session_id=s["session_id"],

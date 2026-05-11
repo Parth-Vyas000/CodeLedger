@@ -120,7 +120,7 @@ def _load_ignore_patterns(project_root: Path) -> list[str]:
 def _build_pathspec(
     ignore_patterns: list[str],
     exclude_patterns: list[str],
-) -> pathspec.PathSpec:
+) -> pathspec.PathSpec[str]:  # type: ignore[type-arg]
     """Build a pathspec matcher from ignore + config exclude patterns."""
     all_patterns = ignore_patterns + exclude_patterns
     return pathspec.PathSpec.from_lines("gitwildmatch", all_patterns)

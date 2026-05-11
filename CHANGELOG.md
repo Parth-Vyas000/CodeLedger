@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-05-06
+
+### Fixed
+
+- `python_parser.py`: Assign `kw_defaults[i]` to a local before the `is not None` check so mypy can narrow the type correctly (Fix 1)
+- `cli.py`: Pass `include_patterns` / `exclude_patterns` separately to `scan_project` in the `diff` command instead of passing the whole `FocusConfig` object (Fix 2)
+- Added `from typing import Any` and replaced all bare `dict` annotations with `dict[str, Any]` across 8 files: `compressor/token_compressor.py`, `compressor/scope_engine.py`, `postprocess/file_manager.py`, `scanner/snapshot.py`, `postprocess/formatter.py`, `classifier/deferred.py`, `generator/prompt_builder.py`, `merge/merge_engine.py` (Fix 3)
+- `scanner/file_scanner.py`: Changed `pathspec.PathSpec` return annotation to `pathspec.PathSpec[str]` (Fix 4)
+
 ## [0.1.3] - 2026-05-06
 
 ### Fixed

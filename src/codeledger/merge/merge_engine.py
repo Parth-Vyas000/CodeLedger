@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 from codeledger.config.schema import CodeLedgerConfig
 from codeledger.generator.model_router import generate
@@ -26,7 +27,7 @@ def _group_by_section(docs: list[ExtractedDoc]) -> dict[str, list[ExtractedSecti
     return dict(groups)
 
 
-def _build_doc_summaries(docs: list[ExtractedDoc]) -> list[dict]:
+def _build_doc_summaries(docs: list[ExtractedDoc]) -> list[dict[str, Any]]:
     """Build compressed summaries of each doc for the merge prompt."""
     summaries = []
     for doc in docs:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from codeledger.classifier.session import SessionType
 from codeledger.config.schema import TemplateSectionConfig
@@ -43,7 +44,7 @@ def build_sections_directive(sections: list[TemplateSectionConfig]) -> str:
 
 
 def build_generation_prompt(
-    compressed_payload: list[dict],
+    compressed_payload: list[dict[str, Any]],
     sections: list[TemplateSectionConfig],
     session_type: SessionType,
     project_name: str = "Project",
@@ -94,7 +95,7 @@ def build_generation_prompt(
 
 
 def build_merge_prompt(
-    doc_summaries: list[dict],
+    doc_summaries: list[dict[str, Any]],
     project_name: str = "Project",
 ) -> tuple[str, str]:
     """Build the prompt for merging multiple docs into a final document.

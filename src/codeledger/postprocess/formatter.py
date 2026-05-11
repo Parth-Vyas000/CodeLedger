@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Template
 
@@ -88,7 +89,7 @@ def format_merge_doc(
     return rendered
 
 
-def _extract_sections(content: str) -> list[dict]:
+def _extract_sections(content: str) -> list[dict[str, Any]]:
     """Extract sections from AI-generated markdown.
 
     Splits content on ## headings into named sections.

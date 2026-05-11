@@ -6,6 +6,7 @@ import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -92,7 +93,7 @@ class Snapshot:
     doc_id: str | None
     files: dict[str, FileSnapshot] = field(default_factory=dict)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "snapshot_id": self.snapshot_id,
             "timestamp": self.timestamp,
@@ -108,7 +109,7 @@ class Snapshot:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> Snapshot:
+    def from_dict(cls, data: dict[str, Any]) -> Snapshot:
         files = {}
         for path, fdata in data.get("files", {}).items():
             files[path] = FileSnapshot(
