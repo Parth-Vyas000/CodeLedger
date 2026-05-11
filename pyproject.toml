@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "codeledger"
-version = "0.1.4"
+version = "0.1.5"
 description = "Auto-generated code comprehension for AI-assisted development — documentation as a development cadence."
 readme = "README.md"
 license = { text = "MIT" }
@@ -78,6 +78,10 @@ python_version = "3.10"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "codeledger.scanner.file_scanner"
+warn_unused_ignores = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
